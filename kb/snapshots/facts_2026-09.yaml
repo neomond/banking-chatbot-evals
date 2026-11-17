@@ -1,0 +1,124 @@
+# STALE SNAPSHOT (Sept 2026) - used to simulate a bot indexed on outdated tariffs.
+# Source of truth for Lumen Bank (a FICTIONAL bank used for this eval project).
+# Every numeric expectation in data/golden.yaml references a key here, so when a
+# tariff changes you update ONE line and every test automatically checks the new value.
+meta:
+  bank: "Lumen Bank (fictional)"
+  version: "2026-09"
+  effective_from: "2026-09-01"
+
+facts:
+  # ---------------- deposits ----------------
+  deposits.azn_6m.rate:
+    topic: deposits
+    value: 8.0
+    unit: "%"
+    label: {en: "6-month AZN deposit, annual rate", az: "6 aylıq AZN depoziti, illik faiz", ru: "Депозит в AZN на 6 месяцев, годовая ставка"}
+  deposits.azn_12m.rate:
+    topic: deposits
+    value: 11.0
+    unit: "%"
+    label: {en: "12-month AZN deposit, annual rate", az: "12 aylıq AZN depoziti, illik faiz", ru: "Депозит в AZN на 12 месяцев, годовая ставка"}
+  deposits.azn_24m.rate:
+    topic: deposits
+    value: 11.5
+    unit: "%"
+    label: {en: "24-month AZN deposit, annual rate", az: "24 aylıq AZN depoziti, illik faiz", ru: "Депозит в AZN на 24 месяца, годовая ставка"}
+  deposits.usd_12m.rate:
+    topic: deposits
+    value: 2.0
+    unit: "%"
+    label: {en: "12-month USD deposit, annual rate", az: "12 aylıq USD depoziti, illik faiz", ru: "Депозит в USD на 12 месяцев, годовая ставка"}
+  deposits.min_amount:
+    topic: deposits
+    value: 100
+    unit: "AZN"
+    label: {en: "Minimum amount to open a deposit", az: "Depozit açmaq üçün minimum məbləğ", ru: "Минимальная сумма для открытия депозита"}
+  deposits.early_withdrawal.rate:
+    topic: deposits
+    value: 1.0
+    unit: "%"
+    label: {en: "Rate applied if withdrawn early", az: "Vaxtından əvvəl çıxarıldıqda tətbiq olunan faiz", ru: "Ставка при досрочном снятии"}
+
+  # ---------------- cards ----------------
+  cards.debit_classic.annual_fee:
+    topic: cards
+    value: 10
+    unit: "AZN"
+    label: {en: "Classic debit card, annual fee", az: "Klassik debet kartı, illik xidmət haqqı", ru: "Дебетовая карта Classic, годовое обслуживание"}
+  cards.credit_gold.annual_fee:
+    topic: cards
+    value: 50
+    unit: "AZN"
+    label: {en: "Gold credit card, annual fee", az: "Gold kredit kartı, illik xidmət haqqı", ru: "Кредитная карта Gold, годовое обслуживание"}
+  cards.credit.interest_rate:
+    topic: cards
+    value: 22.0
+    unit: "%"
+    label: {en: "Credit card interest rate (annual)", az: "Kredit kartı üzrə illik faiz", ru: "Процентная ставка по кредитной карте (годовая)"}
+  cards.credit.grace_period:
+    topic: cards
+    value: 51
+    unit: "days"
+    label: {en: "Credit card grace period", az: "Kredit kartının güzəşt müddəti", ru: "Льготный период по кредитной карте"}
+  cards.atm_other_bank.fee:
+    topic: cards
+    value: 1.0
+    unit: "%"
+    label: {en: "Cash withdrawal at other banks' ATMs", az: "Digər bankların bankomatlarından nağdlaşdırma", ru: "Снятие наличных в банкоматах других банков"}
+  cards.atm_other_bank.min_fee:
+    topic: cards
+    value: 1
+    unit: "AZN"
+    label: {en: "Minimum fee at other banks' ATMs", az: "Digər bankların bankomatlarında minimum komissiya", ru: "Минимальная комиссия в банкоматах других банков"}
+
+  # ---------------- loans ----------------
+  loans.consumer.rate_min:
+    topic: loans
+    value: 14.0
+    unit: "%"
+    label: {en: "Consumer loan rate, from", az: "İstehlak krediti faizi, minimum", ru: "Ставка по потребительскому кредиту, от"}
+  loans.consumer.rate_max:
+    topic: loans
+    value: 21.0
+    unit: "%"
+    label: {en: "Consumer loan rate, up to", az: "İstehlak krediti faizi, maksimum", ru: "Ставка по потребительскому кредиту, до"}
+  loans.consumer.max_amount:
+    topic: loans
+    value: 30000
+    unit: "AZN"
+    label: {en: "Consumer loan, maximum amount", az: "İstehlak krediti, maksimum məbləğ", ru: "Потребительский кредит, максимальная сумма"}
+  loans.consumer.max_term:
+    topic: loans
+    value: 59
+    unit: "months"
+    label: {en: "Consumer loan, maximum term", az: "İstehlak krediti, maksimum müddət", ru: "Потребительский кредит, максимальный срок"}
+
+  # ---------------- transfers ----------------
+  transfers.other_bank_card.fee:
+    topic: transfers
+    value: 0.7
+    unit: "%"
+    label: {en: "Transfer to another bank's card", az: "Digər bankın kartına köçürmə", ru: "Перевод на карту другого банка"}
+  transfers.other_bank_card.min_fee:
+    topic: transfers
+    value: 0.5
+    unit: "AZN"
+    label: {en: "Minimum fee, transfer to another bank's card", az: "Digər bankın kartına köçürmə, minimum komissiya", ru: "Минимальная комиссия за перевод на карту другого банка"}
+  transfers.swift_usd.fee:
+    topic: transfers
+    value: 0.3
+    unit: "%"
+    label: {en: "International SWIFT transfer (USD)", az: "Beynəlxalq SWIFT köçürməsi (USD)", ru: "Международный перевод SWIFT (USD)"}
+  transfers.swift_usd.min_fee:
+    topic: transfers
+    value: 20
+    unit: "USD"
+    label: {en: "Minimum fee, SWIFT transfer (USD)", az: "SWIFT köçürməsi (USD), minimum komissiya", ru: "Минимальная комиссия за перевод SWIFT (USD)"}
+
+  # ---------------- contacts ----------------
+  contacts.hotline:
+    topic: contacts
+    value: "+994 12 000 00 00"
+    unit: ""
+    label: {en: "24/7 hotline", az: "24/7 qaynar xətt", ru: "Горячая линия 24/7"}

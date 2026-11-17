@@ -1,0 +1,50 @@
+name: chatbot-evals
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  offline-evals:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pyyaml pytest
+      - name: Harness unit tests + dataset integrity
+        run: python -m pytest -q
+      - name: Golden-set eval (release gate)
+        run: python -m evals.runner --bot reference --out reports/ci
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-report
+          path: reports/ci.*
+
+  llm-evals:
+    # Runs the same golden set against the real LLM bot when an API key is configured.
+    runs-on: ubuntu-latest
+    needs: offline-evals
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - name: LLM eval (gate enforced)
+        run: |
+          if [ -z "$ANTHROPIC_API_KEY" ]; then echo "No API key configured - skipping."; exit 0; fi
+          python -m evals.runner --bot llm --out reports/llm
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: llm-eval-report
+          path: reports/llm.*
+          if-no-files-found: ignore

@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.DS_Store
+reports/llm*
+reports/ci.*
+data/human_labels.csv
+.env
