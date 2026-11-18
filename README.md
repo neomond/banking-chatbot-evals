@@ -20,11 +20,14 @@ make test             # harness unit tests + dataset integrity
 make eval             # golden set vs. reference bot (offline, no API key)
 make regression-demo  # simulated regressions -> reports/comparison.md
 
-# Real LLM bot + LLM-as-judge
+# Real LLM bot + LLM-as-judge (free Gemini key by default)
 pip install -r requirements.txt
-export ANTHROPIC_API_KEY=...      # or LLM_PROVIDER=openai + OPENAI_API_KEY
+# Put the key in .env (copy .env.example). Do not commit .env.
+# GEMINI_API_KEY=AIza...
 make eval-llm
 make eval-llm-stale   # same model, outdated tariffs in context
+
+# Alternatives: GROQ_API_KEY, LLM_PROVIDER=ollama, or paid OPENAI_API_KEY / ANTHROPIC_API_KEY
 ```
 
 ## What's inside
@@ -35,6 +38,7 @@ kb/snapshots/facts_2026-09.yaml   stale tariffs (simulates an outdated index)
 kb/policies.md                10 behavioural policies, each mapped to test categories
 data/golden.yaml              67 test cases, 11 categories, 3 languages, severity-tagged
 bot/llm_bot.py                the system under test: LLM with structured JSON output
+bot/llm_client.py             providers: Gemini/Groq/Ollama (free) + OpenAI/Anthropic
 bot/reference_bot.py          rule-based baseline so the pipeline runs offline in CI
 evals/checks.py               deterministic checks (the release gate)
 evals/judge.py                LLM-as-judge rubric (groundedness, compliance, helpfulness, tone)

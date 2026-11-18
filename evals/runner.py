@@ -15,6 +15,7 @@ import sys
 from pathlib import Path
 
 from bot import make_bot
+from bot.dotenv import load_dotenv
 from bot.kb import DEFAULT_KB, ROOT
 
 from .engine import EvalEngine, facts_for_checks, load_cases
@@ -22,6 +23,7 @@ from .report import write_markdown
 
 
 def main(argv=None) -> int:
+    load_dotenv()
     ap = argparse.ArgumentParser()
     ap.add_argument("--bot", default="reference", help="reference | reference-regressed | llm")
     ap.add_argument("--kb", default=None, help="KB file the BOT sees (checks always use the current KB)")

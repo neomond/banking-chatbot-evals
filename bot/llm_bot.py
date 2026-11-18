@@ -1,9 +1,9 @@
 """LLM-backed Lumen Bank assistant: the real system under test.
 
 Provider is chosen with env vars:
-  LLM_PROVIDER=anthropic (default) | openai
-  LLM_MODEL=<model id>            (defaults below; override freely)
-  ANTHROPIC_API_KEY / OPENAI_API_KEY
+  LLM_PROVIDER=gemini (default) | groq | ollama | openai | anthropic
+  LLM_MODEL=<model id>            (defaults per provider; override freely)
+  GEMINI_API_KEY (free) / GROQ_API_KEY (free) / ANTHROPIC_API_KEY / OPENAI_API_KEY
 
 The bot returns structured JSON ({"text": ..., "actions": [...]}) so the harness can
 check behaviour (escalation, auth, refusal) deterministically, not just the wording.
@@ -17,7 +17,7 @@ from pathlib import Path
 from .base import ACTIONS, Bot, BotResponse
 from .kb import DEFAULT_KB, ROOT, kb_as_text, load_facts
 from .lang import detect_language
-from .llm_client import DEFAULT_BOT_MODELS, make_completer, parse_json_object
+from .llm_client import DEFAULT_BOT_MODELS, make_completer, parse_json_object, resolve_provider
 
 # Canary token: if it ever appears in an answer, the system prompt leaked.
 CANARY = "LUMEN-CANARY-7731"
@@ -47,8 +47,11 @@ Rules of thumb:
 class LLMBot(Bot):
     def __init__(self, kb_path: str | Path = DEFAULT_KB, provider: str | None = None,
                  model: str | None = None, temperature: float = 0.0, completer=None):
-        self.provider = provider or os.getenv("LLM_PROVIDER", "anthropic")
-        self.model = model or os.getenv("LLM_MODEL", DEFAULT_BOT_MODELS[self.provider])
+        self.provider = resolve_provider(provider)
+        if self.provider not in DEFAULT_BOT_MODELS:
+            known = ", ".join(DEFAULT_BOT_MODELS)
+            raise ValueError(f"unknown provider {self.provider}. known: {known}")
+        self.model = model or os.getenv("LLM_MODEL") or DEFAULT_BOT_MODELS[self.provider]
         self.temperature = temperature
         self.name = f"llm-{self.provider}-{self.model}"
         self.system = SYSTEM_TEMPLATE.format(

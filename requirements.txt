@@ -1,5 +1,5 @@
 pyyaml>=6.0
 pytest>=8.0
-# Only needed for the LLM bot / LLM judge:
-anthropic>=0.40
+# LLM bot / judge. openai covers Gemini, Groq, Ollama, and OpenAI (OpenAI-compatible APIs).
 openai>=1.50
+anthropic>=0.40

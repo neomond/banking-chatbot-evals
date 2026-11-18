@@ -8,7 +8,7 @@ from pathlib import Path
 
 import yaml
 
-from bot.base import Bot
+from bot.base import Bot, BotResponse
 from bot.kb import load_facts
 
 from .checks import run_checks
@@ -37,7 +37,11 @@ class EvalEngine:
         t0 = time.perf_counter()
         for turn in case["turns"]:
             history.append({"role": "user", "content": turn})
-            resp = self.bot.reply(history)
+            try:
+                resp = self.bot.reply(history)
+            except Exception as exc:
+                resp = BotResponse(f"[provider error] {exc}", ["parse_error"], case.get("language"),
+                                   {"error": str(exc)[:500]})
             responses.append(resp)
             history.append({"role": "assistant", "content": resp.text})
         latency = time.perf_counter() - t0
@@ -81,7 +85,11 @@ class EvalEngine:
         }
 
     def run(self, cases: list[dict], dataset_name: str) -> dict:
-        results = [self.run_case(c) for c in cases]
+        results = []
+        total = len(cases)
+        for i, case in enumerate(cases, 1):
+            print(f"[{i}/{total}] {case['id']}", flush=True)
+            results.append(self.run_case(case))
         return {
             "bot": self.bot.name,
             "run_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),

@@ -15,7 +15,7 @@ regression-demo: ## simulated regressions: stale KB, dropped disclaimer, PII ech
 	$(PY) -m evals.runner --bot reference-regressed --out reports/regressed --no-gate
 	$(PY) -m evals.compare reports/baseline.json reports/regressed.json --out reports/comparison.md
 
-eval-llm:        ## real LLM bot + LLM judge (needs ANTHROPIC_API_KEY or OPENAI_API_KEY)
+eval-llm:        ## real LLM bot + LLM judge (free: GEMINI_API_KEY or GROQ_API_KEY)
 	$(PY) -m evals.runner --bot llm --judge --out reports/llm
 
 eval-llm-stale:  ## same model, stale tariffs in context: does the harness catch it?

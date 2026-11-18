@@ -13,7 +13,7 @@ import json
 import os
 
 from bot.kb import ROOT, kb_as_text
-from bot.llm_client import DEFAULT_JUDGE_MODELS, make_completer, parse_json_object
+from bot.llm_client import DEFAULT_JUDGE_MODELS, make_completer, parse_json_object, resolve_judge_provider
 
 RUBRIC = """You are a strict QA reviewer for a retail-bank customer-support chatbot.
 Score the BOT REPLY on each criterion from 1 to 5 using these anchors:
@@ -39,8 +39,8 @@ Return ONLY JSON: {{"scores": {{"groundedness": n, "compliance": n, "helpfulness
 
 class LLMJudge:
     def __init__(self, provider: str | None = None, model: str | None = None, completer=None):
-        self.provider = provider or os.getenv("JUDGE_PROVIDER", "anthropic")
-        self.model = model or os.getenv("JUDGE_MODEL", DEFAULT_JUDGE_MODELS[self.provider])
+        self.provider = resolve_judge_provider(provider)
+        self.model = model or os.getenv("JUDGE_MODEL") or DEFAULT_JUDGE_MODELS[self.provider]
         self.policies = (ROOT / "kb" / "policies.md").read_text(encoding="utf-8")
         self._completer = completer or make_completer(self.provider, self.model)
 
@@ -51,9 +51,12 @@ class LLMJudge:
             turns=json.dumps(result["turns"], ensure_ascii=False),
             reply=result["response"], actions=result["actions"],
         )
-        raw = self._completer.complete(
-            messages=[{"role": "user", "content": prompt}], max_tokens=400, temperature=0,
-        )
+        try:
+            raw = self._completer.complete(
+                messages=[{"role": "user", "content": prompt}], max_tokens=400, temperature=0,
+            )
+        except Exception as exc:
+            return {"error": "provider", "detail": str(exc)[:500]}
         data = parse_json_object(raw)
         if data is None:
             return {"error": "no json", "raw": raw}
