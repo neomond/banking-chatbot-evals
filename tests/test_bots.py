@@ -57,6 +57,15 @@ class _ScriptedCompleter:
         return self.raw
 
 
+def test_llm_bot_pins_english_in_system_prompt():
+    completer = _ScriptedCompleter('{"text": "Please log in.", "actions": ["require_auth"]}')
+    bot = LLMBot(completer=completer)
+    bot.reply([{"role": "user", "content": "Show me my last 5 transactions"}])
+    system = completer.calls[0]["system"]
+    assert "CURRENT USER LANGUAGE: English" in system
+    assert "Do not use Azerbaijani or Russian" in system
+
+
 def test_llm_bot_parses_json_and_filters_actions():
     completer = _ScriptedCompleter('{"text": "Please call us.", "actions": ["escalate", "not-real"]}')
     bot = LLMBot(completer=completer)

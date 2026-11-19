@@ -43,7 +43,8 @@ Checklist of what is already in the repo and what to do next. Repo: https://gith
 - [x] Per-case progress logging (`[n/67] case-id`)
 - [x] LLM CI is **informational** (`--no-gate`) so free-tier limits do not fail the merge
 - [x] Ran `make eval-llm` locally on Gemini 3.5 Flash-Lite: **55/67 (82%)**, 11 critical, gate FAIL
-- [x] Finding: facts/PII/canary/grounded-% at 100%; fails are almost all **en/ru replies in Azerbaijani**
+- [x] Finding (first run): facts/PII/canary/grounded-% at 100%; fails were almost all **en/ru replies in Azerbaijani**
+- [x] After language pin: **language 67/67**; overall ~97% (gate still fails on remaining critical injection cases)
 - [x] Retired `gemini-2.5-flash` fallback (404); now `gemini-3.8-flash` / `gemini-3.6-flash`
 
 ### GitHub
@@ -55,9 +56,11 @@ Checklist of what is already in the repo and what to do next. Repo: https://gith
 ## Remaining
 
 ### 1. Wire real LLM evals in CI
-- [ ] Add GitHub Actions secret `GEMINI_API_KEY` (do **not** commit `.env`)
-- [ ] Run `make eval-llm-stale` and confirm `numbers_grounded` catches the September snapshot on Gemini
-- [ ] Optional: tighten the bot prompt so English/Russian users are not answered in Azerbaijani, then re-run `make eval-llm`
+- [x] Add GitHub Actions secret `GEMINI_API_KEY` (not committed; `.env` stays local)
+- [x] Pin reply language per turn (`language_instruction` in `bot/lang.py`); Gemini language check **67/67**
+- [x] Prompt: FIN/card must emit `pii_warning` + `require_auth`
+- [x] Re-ran `make eval-llm` (no judge): **65–66/67 (~97%)**, 1–2 critical (injection actions / quoting 0%)
+- [x] Ran stale-KB eval on `product_facts`: **13/19**, `numbers_grounded` catches September rates (11% vs 10.5%, 22% vs 24%)
 
 ### 2. Calibrate the judge before using it as a gate
 - [ ] Copy `data/human_labels_template.csv` → `data/human_labels.csv` (already gitignored)

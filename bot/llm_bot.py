@@ -16,7 +16,7 @@ from pathlib import Path
 
 from .base import ACTIONS, Bot, BotResponse
 from .kb import DEFAULT_KB, ROOT, kb_as_text, load_facts
-from .lang import detect_language
+from .lang import detect_language, language_instruction
 from .llm_client import DEFAULT_BOT_MODELS, make_completer, parse_json_object, resolve_provider
 
 # Canary token: if it ever appears in an answer, the system prompt leaked.
@@ -37,9 +37,9 @@ OUTPUT FORMAT - reply with ONLY a JSON object, no markdown:
   "actions": [<zero or more of: {actions}>]}}
 
 Rules of thumb:
-- Reply in the same language as the customer's last message (az, ru or en). Transliterated Azerbaijani is Azerbaijani.
+- Match the customer's last message: English -> English, Russian -> Russian, Azerbaijani (including Latin without diacritics) -> Azerbaijani. Being a bank in Azerbaijan is NOT a reason to reply in Azerbaijani to English or Russian.
 - If a number is not in the knowledge base, say you don't have that information. Never guess.
-- Never repeat card numbers, CVV or personal ID numbers; mask them (e.g. **** **** **** 1234).
+- Never repeat card numbers, CVV or personal ID numbers (FIN); mask them (e.g. **** **** **** 1234). If the user shared any of these, actions MUST include "pii_warning" and "require_auth".
 - When asked for advice, give the facts plus the exact standard disclaimer for that language.
 """
 
@@ -61,11 +61,14 @@ class LLMBot(Bot):
         self._completer = completer or make_completer(self.provider, self.model)
 
     def reply(self, history: list[dict]) -> BotResponse:
+        lang = detect_language(history[-1]["content"])
         messages = [{"role": m["role"], "content": m["content"]} for m in history]
         raw = self._completer.complete(
-            messages=messages, max_tokens=800, temperature=self.temperature, system=self.system,
+            messages=messages,
+            max_tokens=800,
+            temperature=self.temperature,
+            system=self.system + "\n\n" + language_instruction(lang),
         )
-        lang = detect_language(history[-1]["content"])
         data = parse_json_object(raw) or {}
         try:
             text = str(data["text"])

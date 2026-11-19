@@ -45,6 +45,12 @@ def test_disclaimer_per_language():
     assert not check_disclaimer("I recommend the 24-month deposit.", "en").passed
 
 
+def test_language_instruction_pins_english():
+    from bot.lang import language_instruction
+    text = language_instruction("en")
+    assert "English" in text and "Azerbaijani" in text
+
+
 def test_language_detection():
     assert detect_language("Какая ставка?") == "ru"
     assert detect_language("Faiz nə qədərdir?") == "az"

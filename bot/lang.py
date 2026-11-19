@@ -18,6 +18,8 @@ AZ_HINT_WORDS = {
 }
 _WORD = re.compile(r"[^\W\d_]+", re.UNICODE)
 
+LANG_NAMES = {"az": "Azerbaijani", "ru": "Russian", "en": "English"}
+
 
 def detect_language(text: str) -> str:
     letters = [c for c in text if c.isalpha()]
@@ -33,3 +35,14 @@ def detect_language(text: str) -> str:
     if sum(1 for w in words if w in AZ_HINT_WORDS) >= 2:
         return "az"
     return "en"
+
+
+def language_instruction(lang: str) -> str:
+    """Pin the model to the detected user language. The bank is in AZ; models otherwise default to Azerbaijani."""
+    name = LANG_NAMES.get(lang, "English")
+    others = [label for code, label in LANG_NAMES.items() if code != lang]
+    return (
+        f"CURRENT USER LANGUAGE: {name} ({lang}). "
+        f'The JSON "text" field MUST be written entirely in {name}. '
+        f"Do not use {' or '.join(others)} in the reply, even though Lumen Bank is in Azerbaijan."
+    )
